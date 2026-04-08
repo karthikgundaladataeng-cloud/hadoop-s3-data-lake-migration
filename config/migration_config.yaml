@@ -1,0 +1,32 @@
+migration:
+  run_id: "migration_2024_q1"
+  hdfs_host: "namenode.internal"
+  hdfs_port: 8020
+  s3_bucket: "my-enterprise-datalake"
+  s3_region: "us-east-1"
+  max_retries: 3
+  batch_size: 100000
+  parallelism: 8
+
+sources:
+  - hdfs_path: "/data/raw/orders"
+    s3_prefix: "raw/orders"
+    partition_cols: ["year", "month"]
+    format: "orc"
+
+  - hdfs_path: "/data/raw/customers"
+    s3_prefix: "raw/customers"
+    partition_cols: ["region"]
+    format: "parquet"
+
+  - hdfs_path: "/data/raw/products"
+    s3_prefix: "raw/products"
+    format: "parquet"
+
+reconciliation:
+  enabled: true
+  key_columns:
+    orders: ["order_id"]
+    customers: ["customer_id"]
+    products: ["product_id"]
+  sample_size: 1000
